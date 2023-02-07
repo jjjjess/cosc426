@@ -5,13 +5,19 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-public class MainActivity extends Activity implements SensorEventListener {
+import java.util.Locale;
+
+public class MainActivity extends Activity implements SensorEventListener, TextToSpeech.OnInitListener{
 
     // define the display assembly compass picture
     private ImageView image;
@@ -22,7 +28,10 @@ public class MainActivity extends Activity implements SensorEventListener {
     // device sensor manager
     private SensorManager mSensorManager;
 
-    TextView tvHeading;
+    private TextView tvHeading;
+
+    // text to speech
+    private TextToSpeech textToSpeech;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +46,49 @@ public class MainActivity extends Activity implements SensorEventListener {
 
         // initialize your android device sensor capabilities
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        // initialize text ot speech instance
+        textToSpeech = new TextToSpeech(this, this);
+
+        // Image click will prompt a spoken direction
+        image.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                speakOut();
+            }
+        });
+    }
+
+    @Override
+    public void onInit(int status) {
+        // initialize text-to-speech, set language
+        if (status == TextToSpeech.SUCCESS) {
+            int result = textToSpeech.setLanguage(Locale.US);
+            // error handling
+            if (result == TextToSpeech.LANG_MISSING_DATA || result == TextToSpeech.LANG_NOT_SUPPORTED) {
+                Log.e("error", "This Language is not supported");
+            } else {
+                speakOut();
+            }
+        } else {
+            Log.e("error", "Failed to Initialize");
+        }
+    }
+    private void speakOut() {
+        // Cardinal directions
+        String dir[] = {"North","Northeast","East","Southeast","South","Southwest","West","Northwest"};
+
+        // get correct direction index based on the degree
+        String direction = dir[ (int)Math.round((  ((double) -1 * currentDegree % 360) / 45)) % 8 ];
+
+        String text = "You are facing" + direction;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, null);
+        }
+        else {
+            textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null);
+        }
     }
 
     @Override
