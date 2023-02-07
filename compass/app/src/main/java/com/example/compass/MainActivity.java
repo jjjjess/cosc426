@@ -1,6 +1,7 @@
 package com.example.compass;
 
 import android.app.Activity;
+import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -12,8 +13,10 @@ import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.Locale;
 
@@ -57,6 +60,13 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
                 speakOut();
             }
         });
+
+        Button btn1 = (Button) findViewById(R.id.button3);
+        btn1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v)  {
+                Toast.makeText(getBaseContext(), "Programmed by: Camden, Farha, and Jesse" , Toast.LENGTH_SHORT ).show();
+            }
+        });
     }
 
     @Override
@@ -75,8 +85,8 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
         }
     }
     private void speakOut() {
-        // Cardinal directions
-        String dir[] = {"North","Northeast","East","Southeast","South","Southwest","West","Northwest"};
+        // Cardinal directions - changed the spelling of "east" for better android pronunciation
+        String dir[] = {"North","Northeest","i:east","Southeest","South","Southwest","West","Northwest"};
 
         // get correct direction index based on the degree
         String direction = dir[ (int)Math.round((  ((double) -1 * currentDegree % 360) / 45)) % 8 ];
@@ -140,4 +150,7 @@ public class MainActivity extends Activity implements SensorEventListener, TextT
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // not in use
     }
+
+
+
 }
